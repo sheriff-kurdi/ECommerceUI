@@ -1,0 +1,82 @@
+<p-toast></p-toast>
+
+<div class="card">
+  <p-toolbar styleClass="p-mb-4">
+    <ng-template pTemplate="left">
+      <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2" (click)="openNew()"></button> &nbsp;
+      <button pButton pRipple  icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length"></button>
+    </ng-template>
+
+    <ng-template pTemplate="right">
+      <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import" class="p-mr-2 p-d-inline-block"></p-fileUpload> &nbsp;
+      <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help"></button>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table #dt [value]="stock" [paginator]="false"  [rowHover]="true" dataKey="sku">
+    <ng-template pTemplate="caption">
+      <div class="p-d-flex p-ai-center p-jc-between">
+        <h5 class="p-m-0">Manage Stock</h5>
+
+        <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="getAllStock(true)" [(ngModel)]="filters.query"  placeholder="Search..." />
+                </span>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th pSortableColumn="sku">SKU <p-sortIcon field="sku"></p-sortIcon></th>
+        <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+        <th pSortableColumn="sellingPrice">Selling Price <p-sortIcon field="sellingPrice"></p-sortIcon></th>
+        <th pSortableColumn="category">Category <p-sortIcon field="category"></p-sortIcon></th>
+        <th pSortableColumn="inventoryStatus">Status <p-sortIcon field="inventoryStatus"></p-sortIcon></th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td>
+          <p-tableCheckbox [value]="product"></p-tableCheckbox>
+        </td>
+        <td>{{product.sku}}</td>
+        <td>{{product.name}}</td>
+        <td>{{product.stockItemPrices.sellingPrice | currency:'USD'}}</td>
+        <td>{{product.category}}</td>
+        <td></td>
+        <td>
+          <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text " (click)="editProduct(product)"></button>&nbsp;
+          <button pButton pRipple type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger" (click)="deleteProduct(product)"></button>
+        </td>
+
+
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="summary">
+      <div class="row">
+        <div class="p-d-flex p-ai-center p-jc-between">
+          In total there are {{page.total_records}} products.
+        </div>
+        <p-paginator [rows]="page.page_size" [totalRecords]="page.total_records"  (onPageChange)="onPageChange($event)"
+                     (onRowSelect)="onPageChange($event)" [rowsPerPageOptions]="[10,20,30]"></p-paginator>
+      </div>
+    </ng-template>
+
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="productDialog" [closeOnEscape]="false" (onHide)="hideDialog()" header="Product" [modal]="true" styleClass="p-fluid">
+  <ng-template pTemplate="content">
+    <app-stock-create-edit [product]="selectedProduct"></app-stock-create-edit>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+    <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" ></button>
+  </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
